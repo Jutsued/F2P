@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import GameGrid from "@/components/GameGrid";
 import { CATEGORIES, PLATFORMS, slugify } from "@/lib/freetogame";
@@ -24,6 +24,11 @@ export default function GameExplorer({
   const [sort, setSort] = useState(initialSort);
   const [savedOnly, setSavedOnly] = useState(initialSavedOnly);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setSavedOnly(initialSavedOnly);
+    setVisibleCount(PAGE_SIZE);
+  }, [initialSavedOnly]);
+
   const savedGames = useSyncExternalStore(
     subscribeToSavedGames,
     getSavedGamesSnapshot,
