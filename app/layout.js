@@ -1,6 +1,15 @@
 import Link from "next/link";
+import Script from "next/script";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
+if (GA_MEASUREMENT_ID && !/^G-[A-Z0-9]+$/.test(GA_MEASUREMENT_ID)) {
+  throw new Error(
+    "NEXT_PUBLIC_GA_MEASUREMENT_ID must be a valid Google Analytics 4 measurement ID.",
+  );
+}
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -141,6 +150,25 @@ export default function RootLayout({ children }) {
             </div>
           </div>
         </footer>
+
+        {GA_MEASUREMENT_ID ? (
+          <>
+            <Script id="google-analytics-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `}
+            </Script>
+            <Script
+              id="google-analytics"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+          </>
+        ) : null}
       </body>
     </html>
   );

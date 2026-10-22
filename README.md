@@ -32,8 +32,9 @@ This is the same build Vercel runs. If it passes here, it'll pass there.
 
 1. Push this folder to a GitHub repo.
 2. In Vercel: **Add New → Project**, import the repo, keep the defaults.
-3. Add the environment variable `NEXT_PUBLIC_SITE_URL` set to your live URL (e.g. `https://f2p-hub.vercel.app`).
-4. Deploy. Then submit `https://your-url/sitemap.xml` in Google Search Console.
+3. Set `NEXT_PUBLIC_SITE_URL` to the canonical live URL (for example, `https://www.f2pgameshub.com`).
+4. To enable Google Analytics 4, set `NEXT_PUBLIC_GA_MEASUREMENT_ID` to the Measurement ID from your GA4 web data stream (it starts with `G-`). This ID is public, not a secret.
+5. Deploy. Verify the domain in Google Search Console and submit `https://www.f2pgameshub.com/sitemap.xml`.
 
 ## Where things live
 
@@ -60,4 +61,4 @@ Every API response is cached for 24 hours. The top 50 games, 8 big categories, a
 
 Set `NEXT_PUBLIC_SITE_URL` to the canonical production origin before deploying so metadata and `sitemap.xml` use the live domain. Submit `/sitemap.xml` to Google Search Console and verify the domain there.
 
-There are no ad tags or tracking scripts in the app. Before monetizing, publish an accurate privacy policy, add consent controls where required, clearly label sponsored placements, and test that any ad slots preserve page speed, accessibility, and the game content's visibility. Keep the FreeToGame attribution link in place.
+Google Analytics loads only when `NEXT_PUBLIC_GA_MEASUREMENT_ID` is set. Publish an accurate privacy notice describing analytics and provide consent controls where required. Before monetizing, clearly label sponsored placements and test that any ad slots preserve page speed, accessibility, and the game content's visibility. Keep the FreeToGame attribution link in place.
