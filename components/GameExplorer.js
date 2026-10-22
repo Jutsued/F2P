@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import GameGrid from "@/components/GameGrid";
-import { CATEGORIES, PLATFORMS, slugify } from "@/lib/freetogame";
+import { CATEGORIES, PLATFORMS } from "@/lib/freetogame";
 import {
   getSavedGamesSnapshot,
   getServerSavedGamesSnapshot,
@@ -19,7 +19,10 @@ export default function GameExplorer({
   initialSort = "popular",
 }) {
   const [search, setSearch] = useState(initialSearch);
-  const [genre, setGenre] = useState("");
+  const [category, setCategory] = useState("");
+  const [categoryResults, setCategoryResults] = useState({ slug: "", games: [] });
+  const [categoryLoading, setCategoryLoading] = useState(false);
+  const [categoryError, setCategoryError] = useState("");
   const [platform, setPlatform] = useState("");
   const [sort, setSort] = useState(initialSort);
   const [savedOnly, setSavedOnly] = useState(initialSavedOnly);
@@ -28,6 +31,46 @@ export default function GameExplorer({
     setSavedOnly(initialSavedOnly);
     setVisibleCount(PAGE_SIZE);
   }, [initialSavedOnly]);
+
+  useEffect(() => {
+    if (!category) {
+      setCategoryResults({ slug: "", games: [] });
+      setCategoryError("");
+      setCategoryLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setCategoryLoading(true);
+    setCategoryError("");
+
+    fetch(`/api/games/category/${category}`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("The selected category could not be loaded.");
+        }
+        return response.json();
+      })
+      .then((games) => {
+        if (!Array.isArray(games)) {
+          throw new Error("The selected category returned invalid game data.");
+        }
+        setCategoryResults({ slug: category, games });
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          setCategoryResults({ slug: category, games: [] });
+          setCategoryError(error.message);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setCategoryLoading(false);
+        }
+      });
+
+    return () => controller.abort();
+  }, [category]);
 
   const savedGames = useSyncExternalStore(
     subscribeToSavedGames,
@@ -39,7 +82,9 @@ export default function GameExplorer({
   const filteredGames = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
     const selectedPlatform = PLATFORMS.find((item) => item.slug === platform);
-    const results = games.filter((game) => {
+    const categoryGames =
+      category && categoryResults.slug === category ? categoryResults.games : games;
+    const results = categoryGames.filter((game) => {
       const matchesSearch =
         !query ||
         [
@@ -52,12 +97,11 @@ export default function GameExplorer({
         ]
           .filter(Boolean)
           .some((value) => value.toLocaleLowerCase().includes(query));
-      const matchesGenre = !genre || slugify(game.genre || "") === genre;
       const matchesPlatform =
         !selectedPlatform || game.platform?.includes(selectedPlatform.match);
       const matchesSaved = !savedOnly || savedIds.includes(game.id);
 
-      return matchesSearch && matchesGenre && matchesPlatform && matchesSaved;
+      return matchesSearch && matchesPlatform && matchesSaved;
     });
 
     if (sort === "title") {
@@ -67,11 +111,11 @@ export default function GameExplorer({
     }
 
     return results;
-  }, [games, genre, platform, savedIds, savedOnly, search, sort]);
+  }, [games, category, categoryResults, platform, savedIds, savedOnly, search, sort]);
 
   function resetFilters() {
     setSearch("");
-    setGenre("");
+    setCategory("");
     setPlatform("");
     setSort("popular");
     setSavedOnly(false);
@@ -83,7 +127,7 @@ export default function GameExplorer({
     setVisibleCount(PAGE_SIZE);
   }
 
-  const hasFilters = search || genre || platform || savedOnly;
+  const hasFilters = search || category || platform || savedOnly;
 
   return (
     <div className="space-y-7">
@@ -105,15 +149,15 @@ export default function GameExplorer({
           />
 
           <label className="sr-only" htmlFor="genre-filter">
-            Filter by genre
+            Filter by category
           </label>
           <select
             id="genre-filter"
-            value={genre}
-            onChange={(event) => updateFilter(setGenre, event.target.value)}
+            value={category}
+            onChange={(event) => updateFilter(setCategory, event.target.value)}
             className="filter-control w-full px-3 text-sm"
           >
-            <option value="">All genres</option>
+            <option value="">All categories</option>
             {CATEGORIES.map((category) => (
               <option key={category.slug} value={category.slug}>
                 {category.label}
@@ -191,7 +235,13 @@ export default function GameExplorer({
         )}
       </section>
 
-      {savedOnly && !savedLoaded ? (
+      {categoryLoading ? (
+        <p className="py-10 text-center text-sm text-zinc-400">Loading category games…</p>
+      ) : categoryError ? (
+        <p role="alert" className="py-10 text-center text-sm text-amber-300">
+          {categoryError}
+        </p>
+      ) : savedOnly && !savedLoaded ? (
         <p className="py-10 text-center text-sm text-zinc-400">Loading your saved games…</p>
       ) : savedOnly && filteredGames.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 px-6 py-12 text-center">
