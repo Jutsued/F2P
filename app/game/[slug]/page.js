@@ -122,6 +122,13 @@ export default async function GamePage({ params }) {
         <p className="max-w-3xl whitespace-pre-line leading-8 text-ink-2">
           {game.description || game.short_description}
         </p>
+        {game.partial && (
+          <p className="max-w-3xl border-l-2 border-stamp pl-3 text-sm text-ink-2">
+            FreeToGame isn&apos;t serving the full listing for this game right now, so the
+            longer description, screenshots and system requirements are missing. They&apos;ll
+            show up again once the listing is back.
+          </p>
+        )}
       </section>
 
       {reqs && (
