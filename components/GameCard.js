@@ -1,50 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import FavoriteButton from "@/components/FavoriteButton";
-import { slugify } from "@/lib/freetogame";
+import { platformLabel, releaseYear, slugify } from "@/lib/freetogame";
 
 export default function GameCard({ game }) {
-  return (
-    <article className="game-card group relative h-full overflow-hidden rounded-2xl">
-      <div className="relative overflow-hidden bg-zinc-900">
-        <Link
-          href={`/game/${slugify(game.title)}`}
-          className="block overflow-hidden"
-          aria-label={`View ${game.title}`}
-        >
-          <Image
-            src={game.thumbnail}
-            alt={`${game.title} cover art`}
-            width={365}
-            height={206}
-            className="game-card-image aspect-[365/206] h-auto w-full object-cover"
-          />
-        </Link>
-        <span className="absolute left-3 top-3 rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-white backdrop-blur-md">
-          Free to play
-        </span>
-        <FavoriteButton gameId={game.id} gameTitle={game.title} />
-      </div>
+  const href = `/game/${slugify(game.title)}`;
 
-      <div className="flex min-h-44 flex-col p-4">
-        <h3 className="text-base font-bold leading-snug text-white">
-          <Link
-            href={`/game/${slugify(game.title)}`}
-            className="rounded-sm transition-colors hover:text-lime-300"
-          >
+  return (
+    <article className="flex h-full flex-col border border-ink bg-card">
+      <Link href={href} tabIndex={-1} aria-hidden="true" className="block border-b border-ink">
+        <Image
+          src={game.thumbnail}
+          alt=""
+          width={365}
+          height={206}
+          className="thumb aspect-[365/206] h-auto w-full object-cover"
+        />
+      </Link>
+
+      <div className="flex flex-1 flex-col p-3">
+        <h3 className="text-lg font-bold leading-tight">
+          <Link href={href} className="hover:text-stamp hover:underline">
             {game.title}
           </Link>
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">
-          {game.short_description}
+        <p className="mt-1 font-mono text-xs text-muted">
+          {game.genre || "Game"} · {platformLabel(game)} · {releaseYear(game)}
         </p>
-        <div className="mt-auto flex flex-wrap gap-2 pt-4">
-          <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[0.68rem] text-zinc-300">
-            {game.genre || "Free game"}
-          </span>
-          <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[0.68rem] text-zinc-400">
-            {game.platform?.includes("Browser") ? "Browser" : "PC"}
-          </span>
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-2">{game.short_description}</p>
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-rule pt-2.5 text-xs">
+          <span className="truncate text-muted">{game.developer}</span>
+          <FavoriteButton gameId={game.id} gameTitle={game.title} />
         </div>
       </div>
     </article>

@@ -7,15 +7,15 @@
 
 export default function Error({ reset }) {
   return (
-    <div className="space-y-4 py-16 text-center">
-      <h1 className="text-3xl font-bold">Game data is temporarily unavailable</h1>
-      <p className="text-zinc-400">
+    <div className="mx-auto max-w-xl space-y-4 border-y-2 border-ink py-16 text-center">
+      <h1 className="display text-4xl sm:text-5xl">Game data is temporarily unavailable</h1>
+      <p className="leading-7 text-ink-2">
         Our data source isn&apos;t responding right now. Please try again in a minute.
       </p>
       <button
         type="button"
         onClick={() => reset()}
-        className="rounded bg-emerald-700 px-4 py-2 font-semibold hover:bg-emerald-600"
+        className="btn btn-solid"
       >
         Try again
       </button>

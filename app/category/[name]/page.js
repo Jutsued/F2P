@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import GameGrid from "@/components/GameGrid";
+import PageHeader from "@/components/PageHeader";
 import {
   PLATFORMS,
   filterByPlatform,
@@ -62,35 +63,27 @@ export default async function CategoryPage({ params }) {
   })).filter((platform) => platform.count > 0);
 
   return (
-    <div className="space-y-10">
-      <header className="space-y-4 border-b border-white/10 pb-8">
-        <nav aria-label="Breadcrumb" className="text-sm text-zinc-500">
-          <Link href="/" className="hover:text-white">
-            Home
-          </Link>{" "}
-          / {category.label}
-        </nav>
-        <p className="eyebrow">Find your next obsession</p>
-        <h1 className="text-4xl font-black tracking-[-0.04em] text-white sm:text-5xl">
-          Best free {category.label} games
-        </h1>
-        <p className="max-w-2xl leading-7 text-zinc-400">
-          {games.length} free-to-play {category.label} games, sorted by popularity.
+    <div className="space-y-8">
+      <PageHeader crumbs={[{ label: category.label }]} title={`Best free ${category.label} games`}>
+        <p className="max-w-2xl leading-7 text-ink-2">
+          {games.length} free-to-play {category.label} games, most played first.
         </p>
         {platformLinks.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2">
+          <ul className="flex flex-wrap gap-2">
             {platformLinks.map((platform) => (
-              <Link
-                key={platform.slug}
-                href={`/category/${category.slug}/${platform.slug}`}
-                className="category-link rounded-full px-4 py-2 text-sm text-zinc-300"
-              >
-                {platform.label} games <span className="text-zinc-500">· {platform.count}</span>
-              </Link>
+              <li key={platform.slug}>
+                <Link
+                  href={`/category/${category.slug}/${platform.slug}`}
+                  className="btn btn-outline min-h-9 px-3 text-sm"
+                >
+                  {platform.label} only
+                  <span className="font-mono font-normal">{platform.count}</span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </header>
+      </PageHeader>
 
       <GameGrid games={games} />
     </div>

@@ -8,16 +8,16 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <div className="space-y-4 py-16 text-center">
-      <h1 className="text-3xl font-bold">Page not found</h1>
-      <p className="text-zinc-400">
+    <div className="mx-auto max-w-xl space-y-4 border-y-2 border-ink py-16 text-center">
+      <h1 className="display text-4xl sm:text-5xl">Page not found</h1>
+      <p className="leading-7 text-ink-2">
         That game or category doesn&apos;t exist, or it was removed from the catalog.
       </p>
       <Link
         href="/"
-        className="inline-block rounded bg-emerald-700 px-4 py-2 font-semibold hover:bg-emerald-600"
+        className="btn btn-solid"
       >
-        Back to all games
+        Back to the home page
       </Link>
     </div>
   );

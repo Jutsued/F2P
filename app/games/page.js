@@ -1,5 +1,5 @@
-import Link from "next/link";
 import GameExplorer from "@/components/GameExplorer";
+import PageHeader from "@/components/PageHeader";
 import { getAllGames } from "@/lib/freetogame";
 
 export const metadata = {
@@ -18,28 +18,19 @@ export default async function GamesPage({ searchParams }) {
 
   return (
     <div className="space-y-8">
-      <header className="max-w-3xl space-y-4">
-        <nav aria-label="Breadcrumb" className="text-sm text-zinc-500">
-          <Link href="/" className="hover:text-white">
-            Home
-          </Link>{" "}
-          / Discover
-        </nav>
-        <p className="eyebrow">The whole free-to-play universe</p>
-        <h1 className="text-4xl font-black tracking-[-0.04em] text-white sm:text-5xl">
-          Find your next game.
-        </h1>
-        <p className="max-w-2xl text-base leading-7 text-zinc-400">
-          Search hundreds of free-to-play games. Narrow it down by genre or platform, sort
-          the way you like, and keep a shortlist right in your browser.
+      <PageHeader crumbs={[{ label: "All games" }]} title="All free games">
+        <p className="max-w-2xl leading-7 text-ink-2">
+          The full catalog, {games.length} games. Filter by genre or platform, or let the site
+          pick one for you. Saved games stay in this browser, no account needed.
         </p>
-      </header>
+      </PageHeader>
 
       <GameExplorer
         games={games}
         initialSearch={initialSearch}
         initialSavedOnly={query.saved === "1"}
         initialSort={initialSort}
+        initialPick={query.pick === "1"}
       />
     </div>
   );

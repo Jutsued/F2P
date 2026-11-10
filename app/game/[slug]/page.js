@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import FavoriteButton from "@/components/FavoriteButton";
 import GameGrid from "@/components/GameGrid";
+import SectionHeading from "@/components/SectionHeading";
 import {
   getAllGames,
   getCategory,
@@ -45,79 +46,70 @@ export default async function GamePage({ params }) {
     notFound();
   }
 
-  const related = await getRelatedGames(game);
+  const related = await getRelatedGames(game, 4);
   const reqs = game.minimum_system_requirements;
   const category = getCategory(slugify(game.genre || ""));
   const details = [
     ["Genre", game.genre],
     ["Platform", game.platform],
-    ["Publisher", game.publisher],
     ["Developer", game.developer],
+    ["Publisher", game.publisher],
     ["Released", game.release_date],
   ];
 
   return (
-    <article className="space-y-14">
+    <article className="space-y-16">
       <div className="space-y-6">
-        <nav aria-label="Breadcrumb" className="text-sm text-zinc-500">
-          <Link href="/" className="hover:text-white">
+        <nav aria-label="Breadcrumb" className="font-mono text-xs text-muted">
+          <Link href="/" className="hover:text-ink">
             Home
           </Link>
           {category && (
             <>
-              {" "}
-              /{" "}
-              <Link href={`/category/${category.slug}`} className="hover:text-white">
+              {" / "}
+              <Link href={`/category/${category.slug}`} className="hover:text-ink">
                 {category.label}
               </Link>
             </>
-          )}{" "}
-          / {game.title}
+          )}
+          {" / "}
+          <span aria-current="page">{game.title}</span>
         </nav>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:items-center">
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900">
-            <Image
-              src={game.thumbnail}
-              alt={`${game.title} cover art`}
-              width={365}
-              height={206}
-              priority
-              className="aspect-[365/206] h-auto w-full object-cover"
-            />
-            <span className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/65 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-lime-300 backdrop-blur">
-              Free to play
-            </span>
-          </div>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
+          <Image
+            src={game.thumbnail}
+            alt={`${game.title} cover art`}
+            width={365}
+            height={206}
+            priority
+            className="thumb aspect-[365/206] h-auto w-full border-2 border-ink object-cover"
+          />
 
-          <div className="space-y-5">
-            <div className="space-y-3">
-              <p className="eyebrow">{game.genre} · {game.platform}</p>
-              <h1 className="text-4xl font-black leading-[1.05] tracking-[-0.04em] text-white sm:text-5xl">
-                {game.title}
-              </h1>
-              <p className="leading-7 text-zinc-400">{game.short_description}</p>
-            </div>
+          <div className="flex flex-col gap-5">
+            <h1 className="display text-5xl sm:text-6xl">{game.title}</h1>
+            <p className="text-lg leading-8 text-ink-2">{game.short_description}</p>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap gap-3">
               <a
                 href={game.game_url}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-lime-300 px-5 text-sm font-extrabold text-zinc-950 transition hover:bg-lime-200"
+                className="btn btn-solid"
               >
-                Play {game.title} <span aria-hidden="true" className="ml-2">↗</span>
+                Play {game.title} <span aria-hidden="true">↗</span>
               </a>
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/10">
-                <FavoriteButton gameId={game.id} gameTitle={game.title} />
-              </div>
+              <FavoriteButton gameId={game.id} gameTitle={game.title} large />
             </div>
 
-            <dl className="grid grid-cols-2 gap-3 pt-2">
+            <dl className="mt-auto border-t-2 border-ink text-sm">
               {details.map(([label, value]) => (
-                <div key={label} className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
-                  <dt className="text-xs text-zinc-500">{label}</dt>
-                  <dd className="mt-1 text-sm font-semibold text-zinc-200">{value || "Not listed"}</dd>
+                <div
+                  key={label}
+                  className="grid grid-cols-[7rem_1fr] gap-3 border-b border-rule py-2"
+                >
+                  <dt className="font-mono text-xs uppercase leading-5 text-muted">{label}</dt>
+                  <dd className="font-semibold">{value || "Not listed"}</dd>
                 </div>
               ))}
             </dl>
@@ -125,46 +117,19 @@ export default async function GamePage({ params }) {
         </div>
       </div>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <p className="eyebrow">The rundown</p>
-            <h2 className="text-2xl font-black tracking-tight text-white">About {game.title}</h2>
-          </div>
-          <p className="whitespace-pre-line leading-8 text-zinc-300">
-            {game.description || game.short_description}
-          </p>
-        </div>
-        <aside className="h-fit rounded-2xl border border-white/10 bg-white/[0.025] p-5">
-          <p className="eyebrow">Quick facts</p>
-          <dl className="mt-4 space-y-4">
-            <div>
-              <dt className="text-xs text-zinc-500">Play style</dt>
-              <dd className="mt-1 font-semibold text-white">{game.genre || "Not listed"}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-zinc-500">Available on</dt>
-              <dd className="mt-1 font-semibold text-white">{game.platform || "Not listed"}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-zinc-500">Developer</dt>
-              <dd className="mt-1 font-semibold text-white">{game.developer || "Not listed"}</dd>
-            </div>
-          </dl>
-        </aside>
+      <section aria-labelledby="about" className="space-y-5">
+        <SectionHeading id="about" title={`About ${game.title}`} />
+        <p className="max-w-3xl whitespace-pre-line leading-8 text-ink-2">
+          {game.description || game.short_description}
+        </p>
       </section>
 
       {reqs && (
-        <section className="space-y-5">
-          <div className="space-y-2">
-            <p className="eyebrow">Before you download</p>
-            <h2 className="text-2xl font-black tracking-tight text-white">
-              Minimum system requirements
-            </h2>
-          </div>
-          <div className="overflow-x-auto rounded-2xl border border-white/10">
-            <table className="w-full min-w-[28rem] text-left text-sm">
-              <tbody className="divide-y divide-white/[0.07]">
+        <section aria-labelledby="specs" className="space-y-5">
+          <SectionHeading id="specs" title="Minimum system requirements" />
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[28rem] max-w-3xl text-left text-sm">
+              <tbody>
                 {[
                   ["Operating system", reqs.os],
                   ["Processor", reqs.processor],
@@ -172,11 +137,14 @@ export default async function GamePage({ params }) {
                   ["Graphics", reqs.graphics],
                   ["Storage", reqs.storage],
                 ].map(([label, value]) => (
-                  <tr key={label}>
-                    <th scope="row" className="w-44 bg-white/[0.025] px-4 py-3 font-medium text-zinc-400">
+                  <tr key={label} className="border-b border-rule">
+                    <th
+                      scope="row"
+                      className="w-44 py-2.5 pr-4 align-top font-mono text-xs font-normal uppercase leading-5 text-muted"
+                    >
                       {label}
                     </th>
-                    <td className="px-4 py-3 text-zinc-200">{value || "Not listed"}</td>
+                    <td className="py-2.5">{value || "Not listed"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -186,11 +154,8 @@ export default async function GamePage({ params }) {
       )}
 
       {game.screenshots?.length > 0 && (
-        <section className="space-y-5">
-          <div className="space-y-2">
-            <p className="eyebrow">A peek at the action</p>
-            <h2 className="text-2xl font-black tracking-tight text-white">Screenshots</h2>
-          </div>
+        <section aria-labelledby="screenshots" className="space-y-5">
+          <SectionHeading id="screenshots" title="Screenshots" />
           <div className="screenshot-strip">
             {game.screenshots.map((shot, index) => (
               <Image
@@ -199,7 +164,7 @@ export default async function GamePage({ params }) {
                 alt={`${game.title} gameplay screenshot ${index + 1}`}
                 width={1280}
                 height={720}
-                className="w-full rounded-xl border border-white/10 bg-zinc-900"
+                className="thumb w-full border border-ink"
               />
             ))}
           </div>
@@ -207,13 +172,12 @@ export default async function GamePage({ params }) {
       )}
 
       {related.length > 0 && (
-        <section className="space-y-6">
-          <div className="space-y-2">
-            <p className="eyebrow">Keep the streak going</p>
-            <h2 className="text-2xl font-black tracking-tight text-white">
-              More free {game.genre} games
-            </h2>
-          </div>
+        <section aria-labelledby="related" className="space-y-5">
+          <SectionHeading
+            id="related"
+            title={`More ${game.genre} games`}
+            link={category ? { href: `/category/${category.slug}`, label: `All ${category.label} games` } : null}
+          />
           <GameGrid games={related} />
         </section>
       )}

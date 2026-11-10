@@ -1,9 +1,9 @@
 // app/category/[name]/[platform]/page.js
 // Targets searches like "free browser mmorpg" or "free pc shooter".
 // Reuses the cached category list and filters locally: zero extra API calls.
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import GameGrid from "@/components/GameGrid";
+import PageHeader from "@/components/PageHeader";
 import {
   filterByPlatform,
   getCategory,
@@ -45,26 +45,18 @@ export default async function CategoryPlatformPage({ params }) {
   }
 
   return (
-    <div className="space-y-10">
-      <header className="space-y-4 border-b border-white/10 pb-8">
-        <nav aria-label="Breadcrumb" className="text-sm text-zinc-500">
-          <Link href="/" className="hover:text-white">
-            Home
-          </Link>{" "}
-          /{" "}
-          <Link href={`/category/${category.slug}`} className="hover:text-white">
-            {category.label}
-          </Link>{" "}
-          / {platform.label}
-        </nav>
-        <p className="eyebrow">A better fit for your setup</p>
-        <h1 className="text-4xl font-black tracking-[-0.04em] text-white sm:text-5xl">
-          Free {category.label} Games {platform.phrase}
-        </h1>
-        <p className="max-w-2xl leading-7 text-zinc-400">
-          {games.length} free-to-play {category.label} games, sorted by popularity.
+    <div className="space-y-8">
+      <PageHeader
+        crumbs={[
+          { href: `/category/${category.slug}`, label: category.label },
+          { label: platform.label },
+        ]}
+        title={`Free ${category.label} games ${platform.phrase}`}
+      >
+        <p className="max-w-2xl leading-7 text-ink-2">
+          {games.length} free-to-play {category.label} games, most played first.
         </p>
-      </header>
+      </PageHeader>
 
       <GameGrid games={games} />
     </div>

@@ -1,3 +1,4 @@
+import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -18,63 +19,82 @@ export const metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "A better way to find your next free-to-play game. Explore hundreds of PC and browser games by genre, platform, and what you feel like playing.",
+    "An index of free-to-play games for PC and browser. Browse by genre and platform, check system requirements, and save games for later.",
   applicationName: SITE_NAME,
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Find your next free game`,
-    description:
-      "Explore free-to-play PC and browser games. Find your next favorite by genre, platform, and mood.",
+    description: "An index of free-to-play games for PC and browser, ranked by popularity.",
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — Find your next free game`,
-    description: "Explore free-to-play PC and browser games.",
+    description: "An index of free-to-play games for PC and browser.",
   },
 };
 
+const archivo = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-archivo",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-plex-mono",
+});
+
 const NAV_LINKS = [
-  { href: "/games", label: "Discover" },
-  { href: "/games?saved=1", label: "My saved games" },
+  { href: "/games", label: "All games" },
   { href: "/platform/pc", label: "PC" },
   { href: "/platform/browser", label: "Browser" },
-  { href: "/category/mmorpg", label: "MMORPG" },
+  { href: "/games?saved=1", label: "Saved" },
+];
+
+const FOOTER_LINKS = [
+  { href: "/games", label: "All games" },
+  { href: "/category/shooter", label: "Shooters" },
+  { href: "/category/mmorpg", label: "MMORPGs" },
+  { href: "/category/strategy", label: "Strategy" },
 ];
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${archivo.variable} ${plexMono.variable}`}>
+      <head>
+        {/* Every thumbnail comes from FreeToGame. Opening the connection up
+            front saves ~0.5–1s on the first image, which otherwise pays for
+            DNS + TLS. */}
+        <link rel="preconnect" href="https://www.freetogame.com" />
+      </head>
       <body className="min-h-screen antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-lime-300 focus:px-4 focus:py-3 focus:font-bold focus:text-black"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-3 focus:font-bold focus:text-paper"
         >
           Skip to content
         </a>
 
-        <header className="site-header">
+        <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper">
           <nav
             aria-label="Main navigation"
-            className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-7 gap-y-3 px-4 py-3 sm:px-6 lg:px-8"
+            className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3 sm:px-6 lg:px-8"
           >
-            <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="F2P Hub home">
-              <span aria-hidden="true" className="brand-mark">
+            <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="F2P Hub home">
+              <span aria-hidden="true" className="stamp -rotate-3 px-1.5 py-0.5 text-sm">
                 F2P
               </span>
-              <span className="text-sm font-black tracking-tight text-white sm:text-base">
-                {SITE_NAME}
-                <span className="ml-1 text-lime-300">.</span>
+              <span aria-hidden="true" className="display text-2xl">
+                Hub
               </span>
             </Link>
 
-            <ul className="order-3 flex w-full items-center gap-5 overflow-x-auto whitespace-nowrap text-sm text-zinc-400 sm:order-none sm:w-auto">
+            <ul className="order-3 flex w-full items-center gap-6 overflow-x-auto whitespace-nowrap text-sm font-semibold sm:order-none sm:w-auto">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="transition-colors hover:text-lime-300"
-                  >
+                  <Link href={link.href} className="hover:text-stamp">
                     {link.label}
                   </Link>
                 </li>
@@ -85,69 +105,56 @@ export default function RootLayout({ children }) {
               <label className="sr-only" htmlFor="site-search">
                 Search free games
               </label>
-              <div className="relative">
-                <svg
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m20 20-4-4" />
-                </svg>
+              <div className="flex">
                 <input
                   id="site-search"
                   name="q"
                   type="search"
-                  placeholder="Find a game..."
-                  className="filter-control w-full py-2 pl-9 pr-3 text-sm sm:w-48"
+                  placeholder="Title, genre or studio"
+                  className="field min-h-10 w-full px-3 text-sm sm:w-56"
                 />
+                <button type="submit" className="btn btn-solid -ml-px min-h-10 px-3 text-sm">
+                  Search
+                </button>
               </div>
             </form>
           </nav>
         </header>
 
-        <main id="main" className="mx-auto min-h-[65vh] max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <main id="main" className="mx-auto min-h-[65vh] max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           {children}
         </main>
 
-        <footer className="mt-16 border-t border-white/10">
-          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-9 text-sm sm:grid-cols-[1fr_auto] sm:px-6 lg:px-8">
+        <footer className="mt-20 border-t-2 border-ink">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:grid-cols-[1fr_auto] sm:px-6 lg:px-8">
             <div className="space-y-2">
-              <Link href="/" className="font-bold text-white">
-                {SITE_NAME}
-                <span className="text-lime-300">.</span>
-              </Link>
-              <p className="max-w-xl leading-6 text-zinc-500">
-                A community-minded starting point for finding your next free-to-play game.
-                Game details and artwork belong to their respective publishers.
+              <p className="display text-xl">{SITE_NAME}</p>
+              <p className="max-w-xl leading-6 text-ink-2">
+                An index of free-to-play games for PC and browser. Game details and artwork
+                belong to their publishers.
               </p>
-              <p className="text-zinc-500">
-                Game data provided by{" "}
+              <p className="text-ink-2">
+                Game data from{" "}
                 <a
                   href="https://www.freetogame.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-300 underline decoration-zinc-600 underline-offset-4 hover:text-lime-300"
+                  className="text-link font-semibold text-ink"
                 >
                   FreeToGame
                 </a>
-                .
+                , refreshed daily.
               </p>
             </div>
-            <div className="flex flex-wrap content-start gap-x-5 gap-y-2 text-zinc-400">
-              <Link href="/games" className="hover:text-lime-300">
-                Browse all games
-              </Link>
-              <Link href="/category/shooter" className="hover:text-lime-300">
-                Shooters
-              </Link>
-              <Link href="/category/strategy" className="hover:text-lime-300">
-                Strategy
-              </Link>
-            </div>
+            <ul className="flex flex-wrap content-start gap-x-6 gap-y-2 font-semibold">
+              {FOOTER_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-stamp">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </footer>
 
